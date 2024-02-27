@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { db } from './data/guitars'
 import Guitar from './components/Guitar.vue';
 import Header from './components/Header.vue'
@@ -9,10 +9,24 @@ const guitars = ref([])
 const cart = ref([])
 const guitarHeader = ref({})
 
+watch(cart, () => {
+  saveCartToStorage()
+}, {
+  deep: true
+})
+
 onMounted(() => {
   guitars.value = db
   guitarHeader.value = db[4]
+  const storagedCart = localStorage.getItem('cart')
+  if (storagedCart) {
+    cart.value = JSON.parse(storagedCart)
+  }
 })
+
+const saveCartToStorage = () => {
+  localStorage.setItem('cart', JSON.stringify(cart.value))
+}
 
 const addToCart = (guitar) => {
   const isInCart = cart.value.findIndex(item => item.id === guitar.id)
